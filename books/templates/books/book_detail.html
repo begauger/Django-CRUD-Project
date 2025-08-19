@@ -1,0 +1,57 @@
+{% extends 'books/base.html' %}
+
+{% block title %}{{ book.title }} - Book Review Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h1 class="card-title">{{ book.title }}</h1>
+                <p class="text-muted">by {{ book.author }}</p>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Genre:</strong> {{ book.genre }}<br>
+                        <strong>Published:</strong> {{ book.publication_date }}<br>
+                        <strong>ISBN:</strong> {{ book.isbn }}
+                    </div>
+                </div>
+                
+                <h5>Description</h5>
+                <p>{{ book.description }}</p>
+                
+                <a href="{% url 'book_list' %}" class="btn btn-secondary">← Back to All Books</a>
+            </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Reviews ({{ reviews.count }})</h4>
+            </div>
+            <div class="card-body">
+                {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ review.user.username }}</strong>
+                            <span class="text-muted">{{ review.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="text-warning mb-2">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                            {% endfor %}
+                            ({{ review.rating }}/5)
+                        </div>
+                        <p>{{ review.review_text }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

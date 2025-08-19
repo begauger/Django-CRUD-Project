@@ -1,0 +1,39 @@
+{% extends 'books/base.html' %}
+
+{% block title %}All Books - Book Review Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">📚 All Books</h1>
+        
+        {% if books %}
+            <div class="row">
+                {% for book in books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text">
+                                <strong>Author:</strong> {{ book.author }}<br>
+                                <strong>Genre:</strong> {{ book.genre }}<br>
+                                <strong>Published:</strong> {{ book.publication_date }}
+                            </p>
+                            <p class="card-text">{{ book.description|truncatewords:20 }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary">View Details & Reviews</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4>No books available yet!</h4>
+                <p>Add some books through the <a href="/admin/" class="alert-link">admin panel</a> to get started.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
