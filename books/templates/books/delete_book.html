@@ -1,0 +1,57 @@
+{% extends 'books/base.html' %}
+
+{% block title %}Delete {{ book.title }} - Book Review Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h3 class="card-title mb-0">🗑️ Delete Book</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <strong>⚠️ Warning!</strong> This action cannot be undone.
+                </div>
+                
+                <div class="text-center mb-4">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="img-thumbnail mb-3" style="max-height: 200px;">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center mb-3" style="height: 200px; width: 150px; margin: 0 auto;">
+                            <span class="text-muted">📚 No Cover</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h4 class="text-center">{{ book.title }}</h4>
+                <p class="text-center text-muted mb-3">by {{ book.author }}</p>
+                
+                <div class="bg-light p-3 rounded mb-4">
+                    <small class="text-muted">
+                        <strong>Genre:</strong> {{ book.genre }}<br>
+                        <strong>Published:</strong> {{ book.publication_date }}<br>
+                        <strong>ISBN:</strong> {{ book.isbn }}<br>
+                        <strong>Reviews:</strong> {{ book.reviews.count }}
+                    </small>
+                </div>
+                
+                <p class="text-center mb-4">
+                    Are you sure you want to delete "<strong>{{ book.title }}</strong>"?
+                    {% if book.reviews.count > 0 %}
+                        <br><small class="text-danger">This will also delete {{ book.reviews.count }} review{{ book.reviews.count|pluralize }}.</small>
+                    {% endif %}
+                </p>
+                
+                <form method="post" class="text-center">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger">Yes, Delete Book</button>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

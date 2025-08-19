@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
 from .models import Book, Review
-from .forms import CustomUserCreationForm, ReviewForm
+from .forms import CustomUserCreationForm, ReviewForm, BookForm
 
 def home(request):
     """Home page with featured books"""
@@ -77,3 +77,46 @@ def add_review(request, book_id):
         'form': form,
         'book': book,
     })
+
+@login_required
+def add_book(request):
+    """Add a new book"""
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            book = form.save()
+            messages.success(request, f'Book "{book.title}" added successfully!')
+            return redirect('book_detail', pk=book.pk)
+    else:
+        form = BookForm()
+    
+    return render(request, 'books/add_book.html', {'form': form})
+
+@login_required
+def edit_book(request, pk):
+    """Edit an existing book"""
+    book = get_object_or_404(Book, pk=pk)
+    
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES, instance=book)
+        if form.is_valid():
+            book = form.save()
+            messages.success(request, f'Book "{book.title}" updated successfully!')
+            return redirect('book_detail', pk=book.pk)
+    else:
+        form = BookForm(instance=book)
+    
+    return render(request, 'books/edit_book.html', {'form': form, 'book': book})
+
+@login_required
+def delete_book(request, pk):
+    """Delete a book"""
+    book = get_object_or_404(Book, pk=pk)
+    
+    if request.method == 'POST':
+        book_title = book.title
+        book.delete()
+        messages.success(request, f'Book "{book_title}" deleted successfully!')
+        return redirect('book_list')
+    
+    return render(request, 'books/delete_book.html', {'book': book})
