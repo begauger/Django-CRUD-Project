@@ -21,7 +21,18 @@
                 <h5>Description</h5>
                 <p>{{ book.description }}</p>
                 
-                <a href="{% url 'book_list' %}" class="btn btn-secondary">← Back to All Books</a>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'book_list' %}" class="btn btn-secondary">← Back to All Books</a>
+                    {% if user.is_authenticated %}
+                        {% if not user_review %}
+                            <a href="{% url 'add_review' book.id %}" class="btn btn-success">✍️ Write a Review</a>
+                        {% else %}
+                            <span class="badge bg-info">You've already reviewed this book</span>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Review</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
         

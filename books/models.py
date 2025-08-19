@@ -8,6 +8,7 @@ class Book(models.Model):
     publication_date = models.DateField()
     isbn = models.CharField(max_length=13, unique=True)
     description = models.TextField()
+    cover_image = models.ImageField(upload_to='book_covers/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -27,8 +28,8 @@ class Review(models.Model):
     ]
     
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')  # Added User relationship
-    reviewer_name = models.CharField(max_length=100, blank=True)  # Made optional since we have User
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    reviewer_name = models.CharField(max_length=100, blank=True)
     rating = models.IntegerField(choices=RATING_CHOICES)
     review_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -39,4 +40,4 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        unique_together = ['book', 'user']  # Prevents duplicate reviews from same user
+        unique_together = ['book', 'user']

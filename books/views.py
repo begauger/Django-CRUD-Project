@@ -1,6 +1,21 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
+from django.contrib import messages
 from .models import Book, Review
+from .forms import CustomUserCreationForm, ReviewForm
+
+def home(request):
+    """Home page with featured books"""
+    # Get 3 most recent books as featured
+    featured_books = Book.objects.all()[:3]
+    # Get books with highest average ratings (simplified for now)
+    popular_books = Book.objects.all()[:6]
+    
+    return render(request, 'books/home.html', {
+        'featured_books': featured_books,
+        'popular_books': popular_books,
+    })
 
 def book_list(request):
     """Display all books"""
@@ -11,7 +26,54 @@ def book_detail(request, pk):
     """Display a single book and its reviews"""
     book = get_object_or_404(Book, pk=pk)
     reviews = book.reviews.all()
+    
+    # Check if current user has already reviewed this book
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+    
     return render(request, 'books/book_detail.html', {
         'book': book,
-        'reviews': reviews
+        'reviews': reviews,
+        'user_review': user_review,
+    })
+
+def register(request):
+    """User registration"""
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'books/register.html', {'form': form})
+
+@login_required
+def add_review(request, book_id):
+    """Add a review for a book"""
+    book = get_object_or_404(Book, id=book_id)
+    
+    # Check if user has already reviewed this book
+    if Review.objects.filter(book=book, user=request.user).exists():
+        messages.warning(request, 'You have already reviewed this book!')
+        return redirect('book_detail', pk=book_id)
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.book = book
+            review.user = request.user
+            review.save()
+            messages.success(request, 'Review added successfully!')
+            return redirect('book_detail', pk=book_id)
+    else:
+        form = ReviewForm()
+    
+    return render(request, 'books/add_review.html', {
+        'form': form,
+        'book': book,
     })

@@ -1,0 +1,96 @@
+{% extends 'books/base.html' %}
+
+{% block title %}Home - Book Review Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron bg-primary text-white text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-4">📚 Book Review Platform</h1>
+        <p class="lead">Discover amazing books and share your reading experience</p>
+        <a href="{% url 'book_list' %}" class="btn btn-light btn-lg">Browse All Books</a>
+    </div>
+</div>
+
+<!-- Admin Access Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5 class="card-title">📋 Admin Access</h5>
+                <p class="card-text">Manage books, reviews, and users</p>
+                <a href="/admin/" class="btn btn-success btn-sm" target="_blank">
+                    <i class="fas fa-cog"></i> Access Admin Panel
+                </a>
+                <small class="text-muted d-block mt-2">
+                    Login required - Use your superuser credentials
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Books Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="mb-4">🌟 Featured Books</h2>
+        {% if featured_books %}
+            <div class="row">
+                {% for book in featured_books %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 300px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                                <span class="text-muted">📚 No Cover</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="text-muted">by {{ book.author }}</p>
+                            <p class="card-text">{{ book.description|truncatewords:15 }}</p>
+                            <span class="badge badge-info">{{ book.genre }}</span>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm">Read Reviews</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No featured books available yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Popular Books Section -->
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">📈 Popular Books</h2>
+        {% if popular_books %}
+            <div class="row">
+                {% for book in popular_books %}
+                <div class="col-md-2 col-sm-4 mb-3">
+                    <div class="card h-100">
+                        {% if book.cover_image %}
+                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <small class="text-muted">📚</small>
+                            </div>
+                        {% endif %}
+                        <div class="card-body p-2">
+                            <h6 class="card-title small">{{ book.title }}</h6>
+                            <p class="card-text small text-muted">{{ book.author }}</p>
+                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
