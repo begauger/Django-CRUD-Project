@@ -3,94 +3,201 @@
 {% block title %}Home - Book Review Platform{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="jumbotron bg-primary text-white text-center py-5 mb-5">
-    <div class="container">
-        <h1 class="display-4">📚 Book Review Platform</h1>
-        <p class="lead">Discover amazing books and share your reading experience</p>
-        <a href="{% url 'book_list' %}" class="btn btn-light btn-lg">Browse All Books</a>
+<!-- Dynamic Hero Section -->
+<div class="hero-section position-relative overflow-hidden mb-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px;">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.1);"></div>
+    <div class="container-fluid py-5 position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="text-white">
+                    <h1 class="display-3 fw-bold mb-3 animate-title">
+                        📚 Welcome to Book Reviews
+                        <span class="d-block display-6 text-warning mt-2">Where Stories Come Alive!</span>
+                    </h1>
+                    <p class="lead fs-4 mb-4 opacity-90">
+                        🌟 Discover amazing books, connect with passionate readers, and share your literary adventures with our vibrant community.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <a class="btn btn-warning btn-lg px-4 py-3 fw-bold shadow-lg animate-btn" href="{% url 'book_list' %}" role="button">
+                            🚀 Explore Books
+                        </a>
+                        {% if user.is_authenticated %}
+                            <a class="btn btn-light btn-lg px-4 py-3 fw-bold shadow-lg animate-btn" href="{% url 'add_book' %}" role="button">
+                                ➕ Add Your Book
+                            </a>
+                        {% else %}
+                            <a class="btn btn-outline-light btn-lg px-4 py-3 fw-bold shadow-lg animate-btn" href="{% url 'register' %}" role="button">
+                                🎯 Join Our Community
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center">
+                <div class="floating-books">
+                    <div class="book-icon" style="font-size: 4rem; animation: float 3s ease-in-out infinite;">📖</div>
+                    <div class="book-icon" style="font-size: 3rem; animation: float 3s ease-in-out infinite 0.5s;">📚</div>
+                    <div class="book-icon" style="font-size: 2.5rem; animation: float 3s ease-in-out infinite 1s;">📘</div>
+                </div>
+            </div>
+        </div>
     </div>
+    <!-- Decorative Elements -->
+    <div class="position-absolute" style="top: 10%; right: 10%; opacity: 0.1; font-size: 8rem; transform: rotate(15deg);">⭐</div>
+    <div class="position-absolute" style="bottom: 20%; left: 5%; opacity: 0.1; font-size: 6rem; transform: rotate(-25deg);">💫</div>
 </div>
 
-<!-- Admin Access Section -->
-<div class="row mb-5">
-    <div class="col-12">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5 class="card-title">📋 Admin Access</h5>
-                <p class="card-text">Manage books, reviews, and users</p>
-                <a href="/admin/" class="btn btn-success btn-sm" target="_blank">
-                    <i class="fas fa-cog"></i> Access Admin Panel
-                </a>
-                <small class="text-muted d-block mt-2">
-                    Login required - Use your superuser credentials
-                </small>
-            </div>
+<!-- Stats Section -->
+<div class="row mb-5 text-center">
+    <div class="col-md-4 mb-3">
+        <div class="bg-primary text-white p-4 rounded-3 shadow-sm">
+            <div style="font-size: 2.5rem;">📚</div>
+            <h4 class="fw-bold">{{ popular_books.count }}+</h4>
+            <p class="mb-0">Amazing Books</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="bg-success text-white p-4 rounded-3 shadow-sm">
+            <div style="font-size: 2.5rem;">👥</div>
+            <h4 class="fw-bold">Growing</h4>
+            <p class="mb-0">Community</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="bg-warning text-white p-4 rounded-3 shadow-sm">
+            <div style="font-size: 2.5rem;">⭐</div>
+            <h4 class="fw-bold">Endless</h4>
+            <p class="mb-0">Reviews</p>
         </div>
     </div>
 </div>
 
 <!-- Featured Books Section -->
+{% if featured_books %}
 <div class="row mb-5">
     <div class="col-12">
-        <h2 class="mb-4">🌟 Featured Books</h2>
-        {% if featured_books %}
-            <div class="row">
-                {% for book in featured_books %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 300px; object-fit: cover;">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
-                                <span class="text-muted">📚 No Cover</span>
-                            </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ book.title }}</h5>
-                            <p class="text-muted">by {{ book.author }}</p>
-                            <p class="card-text">{{ book.description|truncatewords:15 }}</p>
-                            <span class="badge badge-info">{{ book.genre }}</span>
+        <h2 class="mb-4 text-center">
+            <span class="badge bg-gradient" style="background: linear-gradient(45deg, #ff6b6b, #ffd93d); font-size: 1.5rem; padding: 10px 20px;">
+                ⭐ Featured Books of the Week
+            </span>
+        </h2>
+        <div class="row">
+            {% for book in featured_books %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-lg border-0 book-card" style="transition: transform 0.3s ease;">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 300px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 300px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 0.5rem 0.5rem 0 0;">
+                            <span class="text-white" style="font-size: 3rem;">📚</span>
                         </div>
-                        <div class="card-footer">
-                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary btn-sm">Read Reviews</a>
-                        </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold text-primary">{{ book.title }}</h5>
+                        <p class="text-muted fw-semibold">by {{ book.author }}</p>
+                        <p class="card-text flex-grow-1">{{ book.description|truncatewords:15 }}</p>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-primary mt-auto shadow">
+                            🔍 View Details & Reviews
+                        </a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        {% else %}
-            <p>No featured books available yet.</p>
-        {% endif %}
+            {% endfor %}
+        </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Popular Books Section -->
-<div class="row">
+{% if popular_books %}
+<div class="row mb-5">
     <div class="col-12">
-        <h2 class="mb-4">📈 Popular Books</h2>
-        {% if popular_books %}
-            <div class="row">
-                {% for book in popular_books %}
-                <div class="col-md-2 col-sm-4 mb-3">
-                    <div class="card h-100">
-                        {% if book.cover_image %}
-                            <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 150px; object-fit: cover;">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
-                                <small class="text-muted">📚</small>
-                            </div>
-                        {% endif %}
-                        <div class="card-body p-2">
-                            <h6 class="card-title small">{{ book.title }}</h6>
-                            <p class="card-text small text-muted">{{ book.author }}</p>
-                            <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+        <h2 class="mb-4 text-center">
+            <span class="badge bg-gradient" style="background: linear-gradient(45deg, #ff9a9e, #fecfef); font-size: 1.5rem; padding: 10px 20px;">
+                🔥 Popular Books
+            </span>
+        </h2>
+        <div class="row">
+            {% for book in popular_books %}
+            <div class="col-md-4 col-lg-2 mb-4">
+                <div class="card h-100 shadow border-0" style="transition: transform 0.3s ease;">
+                    {% if book.cover_image %}
+                        <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 200px; background: linear-gradient(45deg, #ffecd2, #fcb69f);">
+                            <span style="font-size: 2rem;">📚</span>
                         </div>
+                    {% endif %}
+                    <div class="card-body p-2">
+                        <h6 class="card-title small fw-bold">{{ book.title|truncatewords:3 }}</h6>
+                        <p class="text-muted small mb-1">{{ book.author|truncatewords:2 }}</p>
+                        <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary">View</a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        {% endif %}
+            {% endfor %}
+        </div>
     </div>
 </div>
+{% endif %}
+
+<!-- Enhanced Call to Action -->
+<div class="text-center mt-5 py-5 rounded-3 position-relative overflow-hidden" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="text-white">
+        <h3 class="display-5 fw-bold mb-3">🚀 Ready to Start Your Literary Journey?</h3>
+        <p class="lead mb-4">Join thousands of book lovers sharing amazing stories and discoveries!</p>
+        {% if not user.is_authenticated %}
+            <div class="mt-4">
+                <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-5 py-3 me-3 fw-bold shadow-lg">
+                    ✨ Sign Up Now
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-5 py-3 fw-bold shadow-lg">
+                    🔐 Already a Member?
+                </a>
+            </div>
+        {% else %}
+            <a href="{% url 'add_book' %}" class="btn btn-warning btn-lg px-5 py-3 fw-bold shadow-lg">
+                📖 Share Your Favorite Book
+            </a>
+        {% endif %}
+    </div>
+    <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 8rem; transform: rotate(15deg);">🌟</div>
+    <div class="position-absolute bottom-0 start-0 opacity-10" style="font-size: 6rem; transform: rotate(-15deg);">📚</div>
+</div>
+
+<!-- Custom CSS for Animations -->
+<style>
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.animate-title {
+    animation: fadeInUp 1s ease-out;
+}
+
+.animate-btn {
+    transition: all 0.3s ease;
+}
+
+.animate-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+
+.book-card:hover {
+    transform: translateY(-5px) rotate(1deg);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 {% endblock %}

@@ -4,65 +4,132 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h1 class="card-title">{{ book.title }}</h1>
-                <p class="text-muted">by {{ book.author }}</p>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Genre:</strong> {{ book.genre }}<br>
-                        <strong>Published:</strong> {{ book.publication_date }}<br>
-                        <strong>ISBN:</strong> {{ book.isbn }}
+    <!-- Book Cover and Info Column -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-lg border-0">
+            {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" class="card-img-top" alt="{{ book.title }}" style="height: 500px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
+            {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center text-white" style="height: 500px; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 0.5rem 0.5rem 0 0;">
+                    <div class="text-center">
+                        <div style="font-size: 5rem;">📚</div>
+                        <p class="mt-2 mb-0">{{ book.title }}</p>
                     </div>
                 </div>
-                
-                <h5>Description</h5>
-                <p>{{ book.description }}</p>
-                
-                <div class="d-flex gap-2">
-                    <a href="{% url 'book_list' %}" class="btn btn-secondary">← Back to All Books</a>
-                    {% if user.is_authenticated %}
-                        {% if not user_review %}
-                            <a href="{% url 'add_review' book.id %}" class="btn btn-success">✍️ Write a Review</a>
-                        {% else %}
-                            <span class="badge bg-info">You've already reviewed this book</span>
-                        {% endif %}
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-success">Login to Review</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Reviews Section -->
-        <div class="card">
-            <div class="card-header">
-                <h4>Reviews ({{ reviews.count }})</h4>
-            </div>
+            {% endif %}
             <div class="card-body">
-                {% if reviews %}
-                    {% for review in reviews %}
-                    <div class="border-bottom pb-3 mb-3">
-                        <div class="d-flex justify-content-between">
-                            <strong>{{ review.user.username }}</strong>
-                            <span class="text-muted">{{ review.created_at|date:"M d, Y" }}</span>
-                        </div>
-                        <div class="text-warning mb-2">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
-                            {% endfor %}
-                            ({{ review.rating }}/5)
-                        </div>
-                        <p>{{ review.review_text }}</p>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ book.genre }}</span>
+                    <span class="badge bg-secondary">{{ book.publication_date.year }}</span>
+                </div>
+                <h6 class="text-muted mb-2">📖 ISBN: {{ book.isbn }}</h6>
+                <p class="small text-muted">
+                    <strong>Published:</strong> {{ book.publication_date }}<br>
+                    <strong>Added:</strong> {{ book.created_at|date:"M d, Y" }}
+                </p>
+                
+                <!-- Action Buttons -->
+                {% if user.is_authenticated %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'edit_book' book.pk %}" class="btn btn-warning">
+                            ✏️ Edit Book
+                        </a>
+                        <a href="{% url 'delete_book' book.pk %}" class="btn btn-danger">
+                            🗑️ Delete Book
+                        </a>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">No reviews yet. Be the first to review this book!</p>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- Book Details and Reviews Column -->
+    <div class="col-md-8">
+        <!-- Book Title and Author -->
+        <div class="mb-4">
+            <h1 class="display-4 fw-bold text-primary">{{ book.title }}</h1>
+            <h3 class="text-muted">by {{ book.author }}</h3>
+            
+            <!-- Rating Summary -->
+            <div class="d-flex align-items-center mb-3">
+                {% if reviews %}
+                    {% with avg_rating=reviews|length %}
+                        <div class="me-3">
+                            <span class="text-warning fs-5">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= 4 %}⭐{% else %}☆{% endif %}
+                                {% endfor %}
+                            </span>
+                            <small class="text-muted">({{ reviews.count }} review{{ reviews.count|pluralize }})</small>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <span class="text-muted">No reviews yet</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Book Description -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">📄 Description</h5>
+                <p class="card-text">{{ book.description }}</p>
+            </div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">💬 Reviews ({{ reviews.count }})</h5>
+                {% if user.is_authenticated %}
+                    {% if not user_review %}
+                        <a href="{% url 'add_review' book.id %}" class="btn btn-success btn-sm">
+                            ✍️ Write a Review
+                        </a>
+                    {% else %}
+                        <span class="badge bg-info">✅ You've reviewed this book</span>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary btn-sm">
+                        🔐 Login to Review
+                    </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="review-item mb-4 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <strong>{{ review.user.username }}</strong>
+                                    <div class="text-warning">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                        {% endfor %}
+                                        <span class="text-muted small">({{ review.rating }}/5)</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                            </div>
+                            <p class="mb-0">{{ review.review_text }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <div style="font-size: 3rem;">📝</div>
+                        <h5>No reviews yet</h5>
+                        <p>Be the first to share your thoughts about this book!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Back Button -->
+<div class="mt-4">
+    <a href="{% url 'book_list' %}" class="btn btn-secondary">
+        ← Back to All Books
+    </a>
 </div>
 {% endblock %}

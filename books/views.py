@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
+from django.db.models import Q
 from .models import Book, Review
 from .forms import CustomUserCreationForm, ReviewForm, BookForm
 
@@ -18,9 +19,23 @@ def home(request):
     })
 
 def book_list(request):
-    """Display all books"""
-    books = Book.objects.all()
-    return render(request, 'books/book_list.html', {'books': books})
+    """Display all books with search functionality"""
+    query = request.GET.get('search')
+    if query:
+        books = Book.objects.filter(
+            Q(title__icontains=query) | 
+            Q(author__icontains=query)
+        ).distinct()
+        search_performed = True
+    else:
+        books = Book.objects.all()
+        search_performed = False
+    
+    return render(request, 'books/book_list.html', {
+        'books': books,
+        'query': query,
+        'search_performed': search_performed,
+    })
 
 def book_detail(request, pk):
     """Display a single book and its reviews"""

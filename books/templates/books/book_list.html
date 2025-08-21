@@ -4,13 +4,37 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>📚 All Books</h1>
-    {% if user.is_authenticated %}
-        <a href="{% url 'add_book' %}" class="btn btn-success">➕ Add New Book</a>
+    {% if search_performed %}
+        <h1>🔍 Search Results for "{{ query }}"</h1>
+        <div>
+            <a href="{% url 'book_list' %}" class="btn btn-outline-secondary me-2">Clear Search</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'add_book' %}" class="btn btn-success">➕ Add New Book</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <h1>📚 All Books</h1>
+        {% if user.is_authenticated %}
+            <a href="{% url 'add_book' %}" class="btn btn-success">➕ Add New Book</a>
+        {% endif %}
     {% endif %}
 </div>
 
-{% if books %}
+{% if search_performed and not books %}
+    <div class="text-center py-5">
+        <div class="alert alert-info">
+            <h4>No books found for "{{ query }}"</h4>
+            <p>Try searching with different keywords or browse all books.</p>
+            <a href="{% url 'book_list' %}" class="btn btn-primary">View All Books</a>
+        </div>
+    </div>
+{% elif books %}
+    {% if search_performed %}
+        <div class="alert alert-success mb-4">
+            Found {{ books.count }} book{{ books.count|pluralize }} matching "{{ query }}"
+        </div>
+    {% endif %}
+    
     <div class="row">
         {% for book in books %}
         <div class="col-md-4 mb-4">
@@ -23,7 +47,14 @@
                     </div>
                 {% endif %}
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ book.title }}</h5>
+                    <h5 class="card-title">
+                        {{ book.title }}
+                        {% if search_performed and query in book.title %}
+                            <span class="badge bg-warning">Title Match</span>
+                        {% elif search_performed and query in book.author %}
+                            <span class="badge bg-info">Author Match</span>
+                        {% endif %}
+                    </h5>
                     <p class="text-muted">by {{ book.author }}</p>
                     <p class="card-text flex-grow-1">{{ book.description|truncatewords:20 }}</p>
                     <div class="mb-2">
